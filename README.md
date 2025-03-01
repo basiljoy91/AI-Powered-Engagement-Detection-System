@@ -43,13 +43,3 @@ The system is implemented using **OpenCV**, **MediaPipe**, and **Scikit-learn**,
 - **Real-time Processing**: Uses the **webcam** to analyze engagement in real-time and provide instant feedback.
   
 ---
-
-## Installation
-
-Follow these steps to get your environment set up for the project:
-
-1. **Clone the repository**  
-   Run this command to clone the repository to your local machine:
-   ```bash
-   git clone https://github.com/your-username/ai-engagement-detection.git
-# AI-Powered-Engagement-Detection-System
