@@ -16,17 +16,18 @@ recognizer = sr.Recognizer()
 
 # Sample Data Collection Function (Simulated for Demo)
 def collect_data():
-    X = np.random.rand(100, 5)  # Simulated 5 posture-based features
-    y = np.random.choice(['Engaged', 'Distracted', 'Needs Help'], 100)
+    # Simulating 100 data points with 5 posture-based features
+    X = np.random.rand(100, 5)  # Simulated posture features
+    y = np.random.choice(['Engaged', 'Distracted', 'Needs Help'], 100)  # Labels
     return X, y
 
 # Train ML Model
 def train_model():
-    X, y = collect_data()
+    X, y = collect_data()  # Collect simulated data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    scaler = StandardScaler()
+    scaler = StandardScaler()  # Standardizing the data
     X_train = scaler.fit_transform(X_train)
-    model = RandomForestClassifier()
+    model = RandomForestClassifier()  # Random Forest classifier
     model.fit(X_train, y_train)
     print("Model Trained!")
     return model, scaler
@@ -37,10 +38,27 @@ def robot_response(message):
     engine.say(message)
     engine.runAndWait()
 
+# Posture feature extraction function (simplified example)
+def extract_posture_features(landmarks):
+    # We take a simplified approach here by extracting 5 key features
+    # For a real model, you should calculate angles and more sophisticated features
+    shoulder_left = landmarks[11]
+    shoulder_right = landmarks[12]
+    hip_left = landmarks[23]
+    hip_right = landmarks[24]
+    nose = landmarks[0]
+    
+    # Example: Calculate the distances between specific body parts
+    shoulder_distance = np.linalg.norm(np.array([shoulder_left.x, shoulder_left.y]) - np.array([shoulder_right.x, shoulder_right.y]))
+    hip_distance = np.linalg.norm(np.array([hip_left.x, hip_left.y]) - np.array([hip_right.x, hip_right.y]))
+    nose_height = nose.y  # Simplified height feature
+    
+    return np.array([shoulder_distance, hip_distance, nose_height])
+
 # Live Engagement Detection & Automated Response
 def detect_engagement():
     model, scaler = train_model()
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(0)  # Start the webcam
     last_response_time = time.time()
     
     while cap.isOpened():
@@ -53,10 +71,12 @@ def detect_engagement():
         
         if result.pose_landmarks:
             landmarks = result.pose_landmarks.landmark
-            posture_features = np.array([landmarks[i].y for i in [11, 12, 23, 24, 0]])
-            posture_features = scaler.transform([posture_features])
+            posture_features = extract_posture_features(landmarks)  # Extract posture features
+            
+            posture_features = scaler.transform([posture_features])  # Scale features
             prediction = model.predict(posture_features)[0]
             
+            # Display the engagement prediction on the frame
             cv2.putText(frame, f"Engagement: {prediction}", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
             
             # Trigger voice response every 5 seconds if needed
